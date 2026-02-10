@@ -76,7 +76,23 @@ A user can generate, pay for, and download a website ZIP using a single template
 
 ---
 
-### 1.4 Preview Generation
+### 1.4 AI Content Enhancement (OpenAI GPT)
+**Tasks**
+- Integrate OpenAI GPT API (server-side only, key stored as environment variable).
+- Build a structured prompt that sends the user's raw wizard input and selected template context to GPT for content polishing (grammar, tone, clarity, professionalism).
+- Create `POST /api/generate/enhance` endpoint that accepts `templateId` + `inputData` and returns `enhancedInputData`.
+- Build UI step after wizard completion that displays AI-enhanced text alongside the original, allowing the user to accept, edit, or revert each field.
+- Implement graceful fallback: if the OpenAI API is unavailable or times out, proceed with the user's original input and show a notification.
+
+**Definition of Done**
+- AI-enhanced text is noticeably improved in tone and clarity over typical raw input.
+- User can compare original vs. enhanced text and choose per field.
+- System works end-to-end even when OpenAI API is unreachable (fallback to raw input).
+- No OpenAI credentials are exposed to the client.
+
+---
+
+### 1.5 Preview Generation
 **Tasks**
 - Generate preview output using template engine.
 - Display preview to user prior to payment.
@@ -88,7 +104,7 @@ A user can generate, pay for, and download a website ZIP using a single template
 
 ---
 
-### 1.5 ZIP Generation & Storage
+### 1.6 ZIP Generation & Storage
 **Tasks**
 - Implement ZIP packaging using Archiver.
 - Store ZIP artifact securely (Azure Blob Storage or equivalent).
@@ -101,7 +117,7 @@ A user can generate, pay for, and download a website ZIP using a single template
 
 ---
 
-### 1.6 Stripe Payment Integration
+### 1.7 Stripe Payment Integration
 **Tasks**
 - Implement Stripe Checkout for $29 one-time payment.
 - Handle success and cancel redirects.
@@ -115,7 +131,7 @@ A user can generate, pay for, and download a website ZIP using a single template
 
 ---
 
-### 1.7 MVP Deployment
+### 1.8 MVP Deployment
 **Tasks**
 - Deploy frontend and backend to Azure.
 - Configure environment variables in Azure.
@@ -124,7 +140,7 @@ A user can generate, pay for, and download a website ZIP using a single template
 **Definition of Done**
 - App is publicly accessible.
 - Full happy path works in production:
-  signup → wizard → preview → payment → ZIP download.
+  signup → wizard → AI enhance → preview → payment → ZIP download.
 
 ---
 
