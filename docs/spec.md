@@ -57,6 +57,14 @@ Ziply reduces cost and complexity barriers for nonprofits needing a professional
   - Optional: events list or simple event section content
 - Wizard validates required fields and provides helpful error messages.
 
+### 6.3.1 AI Content Enhancement (OpenAI GPT)
+- After the user completes all required wizard fields, the collected input data and the selected template identifier are sent to the OpenAI GPT API for content polishing.
+- The AI pass improves grammar, tone, clarity, and professionalism of user-provided text (mission statement, program descriptions, about text, etc.) while preserving the original meaning and facts.
+- The system sends a structured prompt that includes the user's raw input and context about the chosen template so the LLM can tailor language to a nonprofit audience.
+- The user is shown the AI-enhanced version alongside their original input and can accept, edit, or revert each field before proceeding to preview.
+- The enhancement step must not block generation if the OpenAI API is unavailable — the system should fall back gracefully to the user's original input with a notification.
+- API keys are stored server-side only; no OpenAI credentials are exposed to the client.
+
 ### 6.4 Preview
 - User can preview the generated site before purchase.
 - Preview should reflect the chosen template and injected content.
@@ -111,6 +119,10 @@ Ziply reduces cost and complexity barriers for nonprofits needing a professional
   - Cosmos DB for NoSQL storage (user data, template metadata, purchase records)
 - CI/CD with GitHub Actions.
 
+### OpenAI
+- GPT API (e.g., gpt-4o-mini or gpt-4o) for AI content enhancement of user wizard inputs.
+- Called server-side only; API key stored as an environment variable, never exposed to the client.
+
 ### Stripe
 - Stripe Checkout + Webhooks.
 
@@ -159,8 +171,13 @@ Ziply reduces cost and complexity barriers for nonprofits needing a professional
 - GET  /api/templates
 - GET  /api/templates/:id
 
+- POST /api/generate/enhance
+  - input: templateId, inputData (raw user input)
+  - output: enhancedInputData (AI-polished version of each text field)
+  - falls back to original inputData if OpenAI API is unavailable
+
 - POST /api/generate/preview
-  - input: templateId, inputData
+  - input: templateId, inputData (original or AI-enhanced)
   - output: preview reference (URL or HTML payload)
 
 - POST /api/payments/create-checkout-session
@@ -194,6 +211,7 @@ Ziply reduces cost and complexity barriers for nonprofits needing a professional
 - Stripe/webhook complexity: prototype early; use official docs; validate signature verification.
 - Template engine drift: start with 1 template end-to-end, then scale to 4–6.
 - File handling & storage: prefer Blob Storage for artifacts; minimize sensitive data in stored payloads.
+- OpenAI API dependency: implement graceful fallback to raw user input if the API is slow or unavailable; set reasonable timeouts.
 - Scope creep: enforce non-goals; phase extras after end-to-end MVP works.
 
 ## 13. Open Questions (To Resolve Early)
