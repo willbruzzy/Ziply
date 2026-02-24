@@ -3,6 +3,7 @@ import cors from "cors";
 import helmet from "helmet";
 import dotenv from "dotenv";
 import authRoutes from "./routes/auth";
+import generateRoutes from "./routes/generate";
 
 dotenv.config();
 
@@ -18,6 +19,7 @@ app.get("/api/health", (_req, res) => {
 });
 
 app.use("/api/auth", authRoutes);
+app.use("/api", generateRoutes);
 
 app.listen(PORT, () => {
   // eslint-disable-next-line no-console
