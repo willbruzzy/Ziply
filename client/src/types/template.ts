@@ -45,3 +45,4 @@ export interface WizardPayload {
 export const WIZARD_STORAGE_KEY = 'ziply_wizard_data';
 export const AUTH_TOKEN_KEY = 'ziply_token';
 export const AUTH_USER_KEY = 'ziply_user';
+export const GENERATION_ID_KEY = 'ziply_generation_id';
