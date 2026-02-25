@@ -7,6 +7,7 @@ import {
   type WizardPayload,
   AUTH_TOKEN_KEY,
   WIZARD_STORAGE_KEY,
+  GENERATION_ID_KEY,
 } from "@/types/template";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001";
@@ -32,6 +33,8 @@ export default function PreviewPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [orgName, setOrgName] = useState("");
+  const [generatingZip, setGeneratingZip] = useState(false);
+  const [zipError, setZipError] = useState<string | null>(null);
 
   const fetchPreview = useCallback(
     async (payload: WizardPayload, token: string) => {
@@ -82,6 +85,39 @@ export default function PreviewPage() {
       router.push("/wizard");
     }
   }, [router, fetchPreview]);
+
+  const handleContinueToPayment = async () => {
+    const token = localStorage.getItem(AUTH_TOKEN_KEY);
+    const raw = localStorage.getItem(WIZARD_STORAGE_KEY);
+    if (!token || !raw) return;
+
+    setGeneratingZip(true);
+    setZipError(null);
+
+    try {
+      const payload = JSON.parse(raw) as WizardPayload;
+      const res = await fetch(`${API_URL}/api/generate/zip`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (!res.ok) {
+        const data = (await res.json()) as { error?: string };
+        throw new Error(data.error ?? "ZIP generation failed");
+      }
+
+      const data = (await res.json()) as { generationId: string };
+      localStorage.setItem(GENERATION_ID_KEY, data.generationId);
+      router.push("/payment");
+    } catch (err) {
+      setZipError(err instanceof Error ? err.message : "ZIP generation failed");
+      setGeneratingZip(false);
+    }
+  };
 
   // ── Loading ────────────────────────────────────────────────────────────────
 
@@ -140,12 +176,14 @@ export default function PreviewPage() {
                 after payment.
               </p>
             </div>
-            <Link
-              href="/payment"
-              className="bg-indigo-600 text-white px-6 py-2.5 rounded-md font-semibold text-sm hover:bg-indigo-700 transition-colors"
+            <button
+              type="button"
+              onClick={handleContinueToPayment}
+              disabled={generatingZip}
+              className="bg-indigo-600 text-white px-6 py-2.5 rounded-md font-semibold text-sm hover:bg-indigo-700 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
             >
-              Continue to Payment →
-            </Link>
+              {generatingZip ? "Preparing…" : "Continue to Payment →"}
+            </button>
           </div>
 
           {/* Preview banner */}
@@ -190,12 +228,19 @@ export default function PreviewPage() {
             >
               ← Back to enhancement
             </Link>
-            <Link
-              href="/payment"
-              className="bg-indigo-600 text-white px-8 py-2.5 rounded-md font-semibold text-sm hover:bg-indigo-700 transition-colors"
-            >
-              Continue to Payment →
-            </Link>
+            <div className="flex flex-col items-end gap-2">
+              {zipError && (
+                <p className="text-xs text-red-600">{zipError}</p>
+              )}
+              <button
+                type="button"
+                onClick={handleContinueToPayment}
+                disabled={generatingZip}
+                className="bg-indigo-600 text-white px-8 py-2.5 rounded-md font-semibold text-sm hover:bg-indigo-700 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+              >
+                {generatingZip ? "Preparing…" : "Continue to Payment →"}
+              </button>
+            </div>
           </div>
         </div>
       </div>
