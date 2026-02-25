@@ -771,6 +771,12 @@ export default function WizardPage() {
               preview of your generated site.
             </p>
             <div className="flex flex-col gap-3">
+              <Link
+                href="/enhance"
+                className="bg-indigo-600 text-white px-8 py-2.5 rounded-md font-semibold text-sm hover:bg-indigo-700 transition-colors text-center"
+              >
+                Continue to AI Enhancement →
+              </Link>
               <button
                 onClick={() => {
                   setDone(false);
