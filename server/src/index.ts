@@ -4,6 +4,7 @@ import helmet from "helmet";
 import dotenv from "dotenv";
 import authRoutes from "./routes/auth";
 import generateRoutes from "./routes/generate";
+import stripeRoutes from "./routes/stripe";
 
 dotenv.config();
 
@@ -12,6 +13,13 @@ const PORT = process.env.PORT || 3001;
 
 app.use(helmet());
 app.use(cors({ origin: process.env.CLIENT_URL || "http://localhost:3000" }));
+
+// Stripe webhook needs raw body for signature verification — register before json parser
+app.use(
+  "/api/stripe/webhook",
+  express.raw({ type: "application/json" })
+);
+
 app.use(express.json());
 
 app.get("/api/health", (_req, res) => {
@@ -20,6 +28,7 @@ app.get("/api/health", (_req, res) => {
 
 app.use("/api/auth", authRoutes);
 app.use("/api", generateRoutes);
+app.use("/api/stripe", stripeRoutes);
 
 app.listen(PORT, () => {
   // eslint-disable-next-line no-console
