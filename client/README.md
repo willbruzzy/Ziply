@@ -1,36 +1,41 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Ziply Frontend
 
-## Getting Started
+This is the **Next.js 14** frontend for Ziply, a SaaS tool that helps nonprofits generate professional static websites and download them as ZIP files.
 
-First, run the development server:
+The backend API, data model, and deployment details are documented in the root `README.md` and `docs/`.
+
+---
+
+## Getting Started (Frontend Only)
+
+From the `client/` directory:
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Then open `http://localhost:3000` in your browser.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+> Note: The Ziply backend must also be running (see root `README.md` for `npm run dev` from the project root).
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+---
 
-## Learn More
+## Environment Variables
 
-To learn more about Next.js, take a look at the following resources:
+Create `client/.env.local` (or copy from `.env.example`) and set:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+| Variable | Description |
+| -------- | ----------- |
+| `NEXT_PUBLIC_API_URL` | Backend API URL (e.g. `http://localhost:3001`) |
+| `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | Stripe publishable key used on the client |
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+For full environment configuration (including server-side values), see the root `README.md`.
 
-## Deploy on Vercel
+---
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Related Documentation
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Root project overview and setup: `../ReadMe.md`
+- Product & technical spec: `../docs/spec.md`
+- Implementation plan: `../docs/plan.md`
