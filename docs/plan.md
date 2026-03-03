@@ -4,6 +4,8 @@ This document translates `spec.md` into phased, executable tasks designed for AI
 Work proceeds strictly in order: MVP → Polish → Extras.  
 No phase may begin until all “Definition of Done” criteria for the previous phase are met.
 
+**Current status (March 2026):** Phase 0 and Phase 1 (MVP) are implemented; work is moving into Phase 2.
+
 ---
 
 ## Phase 0 — Project Setup & Guardrails (Pre-MVP)
@@ -46,12 +48,13 @@ A user can generate, pay for, and download a website ZIP using a single template
 - Users can register, log in, log out.
 - Passwords are hashed.
 - Unauthorized users cannot access protected endpoints.
+ - MVP stores users in-memory; persisting accounts to Cosmos DB can be a follow-up task.
 
 ---
 
 ### 1.2 Template Engine v1 (Single Template)
 **Tasks**
-- Select templating library (Handlebars or EJS).
+- Use Handlebars as the templating library.
 - Create one nonprofit template with placeholders.
 - Implement variable injection from structured input data.
 - Generate static HTML/CSS output locally.
@@ -109,6 +112,7 @@ A user can generate, pay for, and download a website ZIP using a single template
 - Implement ZIP packaging using Archiver.
 - Store ZIP artifact securely (Azure Blob Storage or equivalent).
 - Associate ZIP with generation request.
+ - Expose `POST /api/generate/zip` to render the template, build the ZIP, upload to storage, and create the generation record before checkout.
 
 **Definition of Done**
 - ZIP contains full static site structure.
@@ -123,6 +127,7 @@ A user can generate, pay for, and download a website ZIP using a single template
 - Handle success and cancel redirects.
 - Implement webhook endpoint with signature verification.
 - Gate ZIP download on confirmed payment.
+ - Expose `POST /api/stripe/create-session` and `GET /api/stripe/session-status/:sessionId` endpoints used by the frontend payment flow.
 
 **Definition of Done**
 - Payment must be confirmed via webhook, not redirect.

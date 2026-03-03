@@ -82,7 +82,7 @@ Ziply reduces cost and complexity barriers for nonprofits needing a professional
   - HTML files (or equivalent static output)
   - CSS (template-provided)
   - Assets directory containing uploaded images/logos
-- Template variables are injected into HTML (library candidate: Handlebars or EJS; selection based on prototyping results).
+- Template variables are injected into HTML using Handlebars (also used to inject brand colors into CSS).
 - Generation must be deterministic and reproducible given the same inputs.
 
 ### 6.7 ZIP Packaging & Delivery
@@ -108,7 +108,7 @@ Ziply reduces cost and complexity barriers for nonprofits needing a professional
 - React + Next.js (App Router as applicable).
 
 ### Backend
-- Node.js + Express (or Next.js API routes if you consolidate; decide and document clearly in plan.md).
+- Node.js + Express (separate backend in `server/`, with the Next.js app in `client/`).
 - REST API endpoints for wizard submission, preview, payment status, and download access.
 
 ### Azure
@@ -128,38 +128,28 @@ Ziply reduces cost and complexity barriers for nonprofits needing a professional
 
 ## 9. Data Model (Initial)
 (Exact schema can evolve, but must be explicit.)
-- User
-  - id
-  - email
-  - passwordHash
-  - createdAt
-- Template
-  - id
-  - name
-  - description
-  - previewAssets / thumbnail
+- User  
+  - id  
+  - email  
+  - passwordHash  
+  - createdAt  
+  - (MVP stores users in-memory; persisting to Cosmos DB is a future enhancement.)
+- Template  
+  - id  
+  - name  
+  - description  
+  - previewAssets / thumbnail  
   - version
-- GenerationRequest (or Project)
-  - id
-  - userId
-  - templateId
-  - inputData (structured JSON)
-  - previewUrl or previewArtifactRef
-  - createdAt
-- Purchase
-  - id
-  - userId
-  - generationRequestId
-  - stripeCheckoutSessionId
-  - stripePaymentIntentId (if used)
-  - status (pending/paid/failed)
-  - paidAt
-- Artifact
-  - id
-  - generationRequestId
-  - zipBlobUrl (or storage reference)
-  - createdAt
-  - accessControl (token expiry / signed URL policy)
+- GenerationRecord  
+  - id (generation id, also Cosmos document id)  
+  - userId (Cosmos partition key)  
+  - templateId  
+  - blobName (e.g. `{userId}/{id}.zip` in Azure Blob Storage)  
+  - paid (boolean)  
+  - createdAt  
+  - paidAt (optional)  
+  - stripeSessionId (optional)  
+  - (This single record plays the role of “generation request”, “purchase status”, and “artifact location” for MVP.)
 
 ## 10. API Surface (Draft)
 (If you use Next.js API routes, map these accordingly.)
@@ -178,27 +168,27 @@ Ziply reduces cost and complexity barriers for nonprofits needing a professional
 
 - POST /api/generate/preview
   - input: templateId, inputData (original or AI-enhanced)
-  - output: preview reference (URL or HTML payload)
+  - output: html (server-rendered HTML string used by the preview page)
 
-- POST /api/stripe/create-checkout-session
-  - input: generationRequestId
-  - output: checkoutUrl
+- POST /api/generate/zip
+  - input: templateId, inputData
+  - output: generationId
+  - side effects: renders template, builds ZIP, uploads to Azure Blob Storage, and creates a GenerationRecord
 
-  POST /api/stripe/create-session 
-  input: generationId
-   Output: sessionUrl .
+- POST /api/stripe/create-session
+  - input: generationId
+  - output: sessionUrl (Stripe Checkout session)
 
 - POST /api/stripe/webhook
   - Stripe webhook endpoint with signature verification
 
+- GET /api/stripe/session-status/:sessionId
+  - requires authentication
+  - returns payment status and associated generationId
+
 - GET /api/generate/download/:generationId
   - requires confirmed payment
   - returns ZIP (or a signed URL)
-
-  POST /api/generate/zip 
-  input: templateId, inputData
-  - creates the generation, builds ZIP, uploads to Blob, returns generationId
-  - checkout is created using this generationId.
 
 ## 11. Acceptance Criteria (Definition of Done)
 - A user can create an account, select a template, complete the wizard, preview output, pay via Stripe, and download a ZIP.
@@ -224,8 +214,8 @@ Ziply reduces cost and complexity barriers for nonprofits needing a professional
 - Scope creep: enforce non-goals; phase extras after end-to-end MVP works.
 
 ## 13. Open Questions (To Resolve Early)
-- Backend shape: Concluded to use express server 
-- Preview strategy: server-rendered HTML preview, static hosting preview, or in-app sandbox rendering.--Decided to use Server-rendered HTML from the backend; POST /api/generate/preview returns { html }.
-- Artifact storage: store ZIP in Blob Storage vs generate on demand. --ZIP is built and stored in Azure Blob when the user proceeds to payment (before checkout), not on demand.
-- Access control approach: signed URLs with expiration vs authenticated streaming endpoint. Download is gated by auth + paid on the same generation record (no signed URLs in the current code). 
-- Template library choice: Handlebars vs EJS after prototyping.
+- Backend shape: use an Express server in `server/` with a separate Next.js app in `client/`.
+- Preview strategy: server-rendered HTML preview; `POST /api/generate/preview` returns `{ html }` used by the preview page.
+- Artifact storage: ZIP is generated by `POST /api/generate/zip`, uploaded to Azure Blob Storage, and referenced from the GenerationRecord.
+- Access control approach: authenticated download endpoint that checks the associated GenerationRecord is marked `paid`; no signed URLs in the MVP.
+- Template library choice: Handlebars for both HTML templates and CSS color theming.
