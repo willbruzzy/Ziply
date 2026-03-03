@@ -76,7 +76,29 @@ cp server/.env.example server/.env
 cp client/.env.example client/.env.local
 ```
 
-Edit each file with your credentials. See the `.env.example` files for required variables.
+Edit each file with your credentials. Required variables:
+
+**Server** (`server/.env`)
+
+| Variable | Description |
+| -------- | ----------- |
+| `PORT` | Server port (default: 3001) |
+| `NODE_ENV` | `development` or `production` |
+| `CLIENT_URL` | Frontend URL (e.g. `http://localhost:3000`) |
+| `COSMOS_DB_ENDPOINT` | Azure Cosmos DB endpoint URL |
+| `COSMOS_DB_KEY` | Azure Cosmos DB access key |
+| `STRIPE_SECRET_KEY` | Stripe secret key |
+| `STRIPE_WEBHOOK_SECRET` | Stripe webhook signing secret |
+| `OPENAI_API_KEY` | OpenAI API key (for content enhancement) |
+| `AZURE_STORAGE_CONNECTION_STRING` | Azure Blob Storage connection string |
+| `JWT_SECRET` | Secret for signing JWT tokens |
+
+**Client** (`client/.env.local`)
+
+| Variable | Description |
+| -------- | ----------- |
+| `NEXT_PUBLIC_API_URL` | Backend API URL (e.g. `http://localhost:3001`) |
+| `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | Stripe publishable key (for Checkout) |
 
 ### 4. Run in development mode
 
@@ -138,3 +160,5 @@ npm run lint
 ## License
 
 This project is developed for academic purposes as part of a Computer Science Capstone.
+
+

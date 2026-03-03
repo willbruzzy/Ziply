@@ -180,16 +180,25 @@ Ziply reduces cost and complexity barriers for nonprofits needing a professional
   - input: templateId, inputData (original or AI-enhanced)
   - output: preview reference (URL or HTML payload)
 
-- POST /api/payments/create-checkout-session
+- POST /api/stripe/create-checkout-session
   - input: generationRequestId
   - output: checkoutUrl
 
-- POST /api/payments/webhook
+  POST /api/stripe/create-session 
+  input: generationId
+   Output: sessionUrl .
+
+- POST /api/stripe/webhook
   - Stripe webhook endpoint with signature verification
 
-- GET /api/download/:generationRequestId
+- GET /api/generate/download/:generationId
   - requires confirmed payment
   - returns ZIP (or a signed URL)
+
+  POST /api/generate/zip 
+  input: templateId, inputData
+  - creates the generation, builds ZIP, uploads to Blob, returns generationId
+  - checkout is created using this generationId.
 
 ## 11. Acceptance Criteria (Definition of Done)
 - A user can create an account, select a template, complete the wizard, preview output, pay via Stripe, and download a ZIP.
@@ -215,8 +224,8 @@ Ziply reduces cost and complexity barriers for nonprofits needing a professional
 - Scope creep: enforce non-goals; phase extras after end-to-end MVP works.
 
 ## 13. Open Questions (To Resolve Early)
-- Backend shape: Express server vs Next.js API routes (pick one and document).
-- Preview strategy: server-rendered HTML preview, static hosting preview, or in-app sandbox rendering.
-- Artifact storage: store ZIP in Blob Storage vs generate on demand.
-- Access control approach: signed URLs with expiration vs authenticated streaming endpoint.
+- Backend shape: Concluded to use express server 
+- Preview strategy: server-rendered HTML preview, static hosting preview, or in-app sandbox rendering.--Decided to use Server-rendered HTML from the backend; POST /api/generate/preview returns { html }.
+- Artifact storage: store ZIP in Blob Storage vs generate on demand. --ZIP is built and stored in Azure Blob when the user proceeds to payment (before checkout), not on demand.
+- Access control approach: signed URLs with expiration vs authenticated streaming endpoint. Download is gated by auth + paid on the same generation record (no signed URLs in the current code). 
 - Template library choice: Handlebars vs EJS after prototyping.
