@@ -73,7 +73,7 @@ function Label({
 }
 
 const inputClass =
-  "w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent";
+  "w-full border border-gray-300 rounded-md px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent";
 
 const textareaClass = `${inputClass} resize-none`;
 
@@ -174,7 +174,7 @@ function Step2({
               type="text"
               value={data.primaryColor}
               onChange={(e) => onChange("primaryColor", e.target.value)}
-              className="flex-1 border border-gray-300 rounded-md px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="flex-1 border border-gray-300 rounded-md px-3 py-2 text-sm font-mono text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500"
               placeholder="#4f46e5"
             />
           </div>
@@ -198,7 +198,7 @@ function Step2({
               type="text"
               value={data.secondaryColor}
               onChange={(e) => onChange("secondaryColor", e.target.value)}
-              className="flex-1 border border-gray-300 rounded-md px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="flex-1 border border-gray-300 rounded-md px-3 py-2 text-sm font-mono text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500"
               placeholder="#1e40af"
             />
           </div>
