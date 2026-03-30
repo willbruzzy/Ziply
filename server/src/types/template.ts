@@ -26,6 +26,14 @@ export interface TemplateInputData {
   /** Alt text for the logo image. Defaults to orgName. Optional. */
   logoAlt?: string;
 
+  // --- Images ---
+  /**
+   * Map of uploaded image URLs keyed by slot name.
+   * Slots are template-defined (e.g. "about" for the about-section image).
+   * Values are public Azure Blob Storage URLs returned by POST /api/upload/image.
+   */
+  images?: { about?: string; [key: string]: string | undefined };
+
   // --- Programs / Services ---
   /**
    * List of programs or services offered by the nonprofit.
