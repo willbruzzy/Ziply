@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{{orgName}}</title>
+  <meta name="description" content="{{missionStatement}}" />
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    :root {
+      --primary:   {{primaryColor}};
+      --secondary: {{secondaryColor}};
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ======= Navigation ======= -->
+  <nav class="nav" aria-label="Main navigation">
+    <div class="container nav__inner">
+      <a href="#" class="nav__logo" aria-label="{{orgName}} home">
+        {{#if logoUrl}}
+          <img src="{{logoUrl}}" alt="{{logoAlt}}" />
+        {{/if}}
+        <span>{{orgName}}</span>
+      </a>
+
+      <ul class="nav__links" role="list">
+        <li><a href="#about">About</a></li>
+        <li><a href="#programs">Programs</a></li>
+        {{#if impactStats}}<li><a href="#impact">Impact</a></li>{{/if}}
+        {{#if volunteerText}}<li><a href="#volunteer">Get Involved</a></li>{{/if}}
+        <li><a href="#contact">Contact</a></li>
+      </ul>
+
+      {{#if donationUrl}}
+        <a href="{{donationUrl}}" class="btn btn-primary nav__cta" target="_blank" rel="noopener noreferrer">
+          {{#if donationCta}}{{donationCta}}{{else}}Donate Now{{/if}}
+        </a>
+      {{/if}}
+    </div>
+  </nav>
+
+  <!-- ======= Hero ======= -->
+  <header class="hero" role="banner">
+    <div class="hero__overlay"></div>
+    <div class="container hero__content">
+      <span class="hero__badge">Nonprofit Organization</span>
+      <h1 class="hero__title">{{orgName}}</h1>
+      <p class="hero__tagline">{{tagline}}</p>
+      <div class="hero__actions">
+        {{#if donationUrl}}
+          <a href="{{donationUrl}}" class="btn btn-primary" target="_blank" rel="noopener noreferrer">
+            {{#if donationCta}}{{donationCta}}{{else}}Donate Now{{/if}}
+          </a>
+        {{/if}}
+        <a href="#about" class="btn btn-ghost">Learn More &darr;</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- ======= Mission ======= -->
+  <section class="mission" aria-labelledby="mission-heading">
+    <div class="container mission__inner">
+      <div class="mission__accent" aria-hidden="true"></div>
+      <div class="mission__body">
+        <h2 class="section-label" id="mission-heading">Our Mission</h2>
+        <p class="mission__text">{{missionStatement}}</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======= About ======= -->
+  <section id="about" class="about" aria-labelledby="about-heading">
+    <div class="container about__grid">
+      <div class="about__media" aria-hidden="true">
+        <div class="about__shape"></div>
+      </div>
+      <div class="about__content">
+        <h2 class="section-label" id="about-heading">About Us</h2>
+        <h3 class="about__heading">Who We Are</h3>
+        <p class="about__text">{{aboutText}}</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======= Programs ======= -->
+  <section id="programs" class="programs" aria-labelledby="programs-heading">
+    <div class="container">
+      <div class="programs__header">
+        <h2 class="section-label" id="programs-heading">What We Do</h2>
+        <h3 class="programs__title">Our Programs</h3>
+        <p class="programs__subtitle">Making a difference through action.</p>
+      </div>
+      <div class="programs__grid">
+        {{#each programs}}
+          <article class="program-card">
+            <div class="program-card__stripe" aria-hidden="true"></div>
+            <div class="program-card__body">
+              {{#if icon}}
+                <span class="program-card__icon" aria-hidden="true">{{icon}}</span>
+              {{/if}}
+              <h4 class="program-card__name">{{name}}</h4>
+              <p class="program-card__desc">{{description}}</p>
+            </div>
+          </article>
+        {{/each}}
+      </div>
+    </div>
+  </section>
+
+  <!-- ======= Impact (optional) ======= -->
+  {{#if impactStats}}
+  <section id="impact" class="impact" aria-labelledby="impact-heading">
+    <div class="container">
+      <h2 class="section-label impact__label" id="impact-heading">Our Impact</h2>
+      <div class="impact__grid">
+        {{#each impactStats}}
+          <div class="impact-card">
+            <p class="impact-card__number">{{number}}</p>
+            <p class="impact-card__label">{{label}}</p>
+          </div>
+        {{/each}}
+      </div>
+    </div>
+  </section>
+  {{/if}}
+
+  <!-- ======= Donate (optional) ======= -->
+  {{#if donationUrl}}
+  <section class="donate" aria-labelledby="donate-heading">
+    <div class="container donate__inner">
+      <div class="donate__content">
+        <h2 class="donate__heading" id="donate-heading">Support Our Cause</h2>
+        <p class="donate__text">
+          Every contribution brings us closer to our goals. Your generosity
+          directly powers the programs and people who need it most.
+        </p>
+        <a href="{{donationUrl}}" class="btn btn-primary" target="_blank" rel="noopener noreferrer">
+          {{#if donationCta}}{{donationCta}}{{else}}Donate Now{{/if}}
+        </a>
+      </div>
+    </div>
+  </section>
+  {{/if}}
+
+  <!-- ======= Volunteer (optional) ======= -->
+  {{#if volunteerText}}
+  <section id="volunteer" class="volunteer" aria-labelledby="volunteer-heading">
+    <div class="container volunteer__inner">
+      <h2 class="section-label" id="volunteer-heading">Get Involved</h2>
+      <h3 class="volunteer__heading">Volunteer With Us</h3>
+      <p class="volunteer__text">{{volunteerText}}</p>
+      {{#if volunteerUrl}}
+        <a href="{{volunteerUrl}}" class="btn btn-primary" target="_blank" rel="noopener noreferrer">
+          Sign Up to Volunteer
+        </a>
+      {{/if}}
+    </div>
+  </section>
+  {{/if}}
+
+  <!-- ======= Contact ======= -->
+  <section id="contact" class="contact" aria-labelledby="contact-heading">
+    <div class="container contact__inner">
+      <div class="contact__info">
+        <h2 class="section-label" id="contact-heading">Contact</h2>
+        <h3 class="contact__heading">Get In Touch</h3>
+        <ul class="contact__list">
+          <li>
+            <span class="contact__icon" aria-hidden="true">&#9993;</span>
+            <a href="mailto:{{email}}">{{email}}</a>
+          </li>
+          {{#if phone}}
+            <li>
+              <span class="contact__icon" aria-hidden="true">&#9742;</span>
+              <a href="tel:{{phone}}">{{phone}}</a>
+            </li>
+          {{/if}}
+          {{#if address}}
+            <li>
+              <span class="contact__icon" aria-hidden="true">&#9873;</span>
+              <span>{{address}}</span>
+            </li>
+          {{/if}}
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======= Footer ======= -->
+  <footer class="footer" role="contentinfo">
+    <div class="container footer__inner">
+      <p class="footer__brand">{{orgName}}</p>
+      <p class="footer__copy">
+        &copy; {{year}} {{orgName}} &middot;
+        Built with <a href="https://ziply.app" target="_blank" rel="noopener noreferrer">Ziply</a>
+      </p>
+    </div>
+  </footer>
+
+</body>
+</html>
