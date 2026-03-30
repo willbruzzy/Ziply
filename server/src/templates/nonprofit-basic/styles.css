@@ -177,6 +177,12 @@ section:nth-child(even) { background: var(--surface); }
   margin-bottom: 1.25rem;
 }
 .about__text { color: var(--muted); font-size: 1.05rem; line-height: 1.8; }
+.about__image {
+  width: 100%;
+  height: 320px;
+  object-fit: cover;
+  border-radius: 1rem;
+}
 .about__visual {
   background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
   border-radius: 1rem;
