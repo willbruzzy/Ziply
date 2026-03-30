@@ -1,16 +1,12 @@
 "use client";
 
 import Link from "next/link";
+import FlowNav from "@/components/FlowNav";
 
 export default function PaymentCancelPage() {
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
-      <nav className="border-b border-gray-100 bg-white px-6 py-4 flex items-center justify-between">
-        <Link href="/" className="text-xl font-bold text-indigo-600">
-          Ziply
-        </Link>
-        <span className="text-sm text-gray-500">Payment Cancelled</span>
-      </nav>
+      <FlowNav />
 
       <div className="flex-1 flex flex-col items-center justify-center gap-4 px-4">
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-10 max-w-md w-full text-center">
