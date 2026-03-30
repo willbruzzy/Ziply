@@ -79,6 +79,24 @@ A user can generate, pay for, and download a website ZIP using a single template
 
 ---
 
+### 1.3.1 Image Upload
+**Tasks**
+- Server: install `multer` for multipart parsing; add Azure Blob Storage upload service (`server/src/services/blobStorage.ts`) using `@azure/storage-blob`.
+- Server: create `POST /api/upload/image` route (authenticated); accept single file, validate type (JPEG/PNG/WebP) and size (max 5 MB), upload to Azure Blob Storage, return `{ url }`.
+- Schema: add `images?: { about?: string; [key: string]: string | undefined }` to `TemplateInputData` in both `server/src/types/template.ts` and `client/src/types/template.ts`; remove legacy `logoUrl`/`logoAlt` fields if superseded.
+- Client: add a dedicated media wizard step between branding and programs; include a file input that triggers eager upload on selection, shows upload progress/error, and stores the returned blob URL in `wizardData.inputData.images.about`.
+- Template: update `nonprofit-basic/index.hbs` to conditionally render the about image when `images.about` is present.
+- Env: document `AZURE_STORAGE_CONNECTION_STRING` and `AZURE_STORAGE_CONTAINER_NAME` in server README and `.env.example`.
+
+**Definition of Done**
+- User can upload an image in the wizard media step; it appears rendered in the about section of the preview.
+- Upload fires on file select (eager); blob URL is stored in wizard state before final submission.
+- Invalid file type or oversized file produces a clear error message; wizard cannot proceed until resolved or field left empty.
+- Generated HTML references the public blob URL; no SAS token required.
+- `POST /api/upload/image` requires a valid JWT; unauthenticated requests return 401.
+
+---
+
 ### 1.4 AI Content Enhancement (OpenAI GPT)
 **Tasks**
 - Integrate OpenAI GPT API (server-side only, key stored as environment variable).
