@@ -3,6 +3,8 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import FlowNav from "@/components/FlowNav";
+import Spinner from "@/components/Spinner";
 import {
   type TemplateInputData,
   type ImpactStat,
@@ -572,7 +574,8 @@ function TemplateSelect({
 }) {
   if (loading) {
     return (
-      <div className="text-center py-12">
+      <div className="flex flex-col items-center justify-center py-12 gap-3">
+        <Spinner />
         <p className="text-sm text-gray-500">Loading templates…</p>
       </div>
     );
@@ -819,7 +822,7 @@ export default function WizardPage() {
   if (done) {
     return (
       <div className="min-h-screen bg-gray-50 flex flex-col">
-        <WizardNav />
+        <FlowNav />
         <div className="flex-1 flex items-center justify-center px-4 py-16">
           <div className="w-full max-w-lg text-center bg-white rounded-xl shadow-sm border border-gray-100 p-10">
             <div className="w-14 h-14 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
@@ -877,7 +880,7 @@ export default function WizardPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
-      <WizardNav />
+      <FlowNav />
 
       <div className="flex-1 flex flex-col items-center px-4 py-10">
         {/* Progress */}
@@ -978,13 +981,3 @@ export default function WizardPage() {
   );
 }
 
-function WizardNav() {
-  return (
-    <nav className="border-b border-gray-100 bg-white px-6 py-4 flex items-center justify-between">
-      <Link href="/" className="text-xl font-bold text-indigo-600">
-        Ziply
-      </Link>
-      <span className="text-sm text-gray-500">Site Wizard</span>
-    </nav>
-  );
-}

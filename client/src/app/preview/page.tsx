@@ -3,6 +3,8 @@
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import FlowNav from "@/components/FlowNav";
+import Spinner from "@/components/Spinner";
 import {
   type WizardPayload,
   AUTH_TOKEN_KEY,
@@ -13,17 +15,6 @@ import {
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001";
 
 // ── Components ─────────────────────────────────────────────────────────────────
-
-function PreviewNav() {
-  return (
-    <nav className="border-b border-gray-100 bg-white px-6 py-4 flex items-center justify-between">
-      <Link href="/" className="text-xl font-bold text-indigo-600">
-        Ziply
-      </Link>
-      <span className="text-sm text-gray-500">Site Preview</span>
-    </nav>
-  );
-}
 
 // ── Main Page ──────────────────────────────────────────────────────────────────
 
@@ -124,9 +115,9 @@ export default function PreviewPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex flex-col">
-        <PreviewNav />
+        <FlowNav />
         <div className="flex-1 flex flex-col items-center justify-center gap-4">
-          <div className="w-8 h-8 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin" />
+          <Spinner />
           <p className="text-sm text-gray-500">Generating your preview&hellip;</p>
         </div>
       </div>
@@ -138,7 +129,7 @@ export default function PreviewPage() {
   if (error) {
     return (
       <div className="min-h-screen bg-gray-50 flex flex-col">
-        <PreviewNav />
+        <FlowNav />
         <div className="flex-1 flex flex-col items-center justify-center gap-4 px-4">
           <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-10 max-w-md w-full text-center">
             <p className="text-sm font-medium text-red-600 mb-2">
@@ -161,7 +152,7 @@ export default function PreviewPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
-      <PreviewNav />
+      <FlowNav />
 
       <div className="flex-1 flex flex-col items-center px-4 py-8">
         <div className="w-full max-w-6xl">
@@ -230,7 +221,16 @@ export default function PreviewPage() {
             </Link>
             <div className="flex flex-col items-end gap-2">
               {zipError && (
-                <p className="text-xs text-red-600">{zipError}</p>
+                <div className="flex items-center gap-2">
+                  <p className="text-xs text-red-600">{zipError}</p>
+                  <button
+                    type="button"
+                    onClick={handleContinueToPayment}
+                    className="text-xs text-indigo-600 hover:text-indigo-800 font-medium transition-colors"
+                  >
+                    Retry
+                  </button>
+                </div>
               )}
               <button
                 type="button"

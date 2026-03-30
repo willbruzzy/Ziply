@@ -3,6 +3,8 @@
 import { Suspense, useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
+import FlowNav from "@/components/FlowNav";
+import Spinner from "@/components/Spinner";
 import { AUTH_TOKEN_KEY, GENERATION_ID_KEY } from "@/types/template";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001";
@@ -12,7 +14,7 @@ export default function PaymentSuccessPage() {
     <Suspense
       fallback={
         <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center">
-          <div className="w-8 h-8 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin" />
+          <Spinner />
         </div>
       }
     >
@@ -118,17 +120,12 @@ function PaymentSuccessContent() {
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
-      <nav className="border-b border-gray-100 bg-white px-6 py-4 flex items-center justify-between">
-        <Link href="/" className="text-xl font-bold text-indigo-600">
-          Ziply
-        </Link>
-        <span className="text-sm text-gray-500">Payment Confirmation</span>
-      </nav>
+      <FlowNav />
 
       <div className="flex-1 flex flex-col items-center justify-center gap-4 px-4">
         {status === "loading" && (
           <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-10 max-w-md w-full text-center">
-            <div className="w-8 h-8 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+            <div className="flex justify-center mb-4"><Spinner /></div>
             <p className="text-sm text-gray-500">Verifying your payment&hellip;</p>
           </div>
         )}
