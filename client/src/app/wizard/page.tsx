@@ -11,11 +11,12 @@ import {
   WIZARD_STORAGE_KEY,
 } from "@/types/template";
 
-const TOTAL_STEPS = 5;
+const TOTAL_STEPS = 6;
 
 const STEP_LABELS = [
   "Organization",
   "Branding",
+  "Media",
   "Programs",
   "Impact & Donations",
   "Contact",
@@ -37,6 +38,7 @@ const INITIAL_DATA: TemplateInputData = {
   address: "",
   volunteerText: "",
   volunteerUrl: "",
+  images: {},
 };
 
 type Errors = Record<string, string>;
@@ -239,6 +241,102 @@ function Step2({
             onChange={(e) => onChange("logoAlt", e.target.value)}
             className={inputClass}
             placeholder="Green Future Foundation logo"
+          />
+        </div>
+      )}
+    </div>
+  );
+}
+
+function StepMedia({
+  imageUrl,
+  onImageUrl,
+  onStatusChange,
+}: {
+  imageUrl?: string;
+  onImageUrl: (url: string) => void;
+  onStatusChange: (status: "idle" | "uploading" | "done" | "error") => void;
+}) {
+  const [status, setStatus] = useState<"idle" | "uploading" | "done" | "error">("idle");
+  const [error, setError] = useState<string>("");
+  const [preview, setPreview] = useState<string>(imageUrl ?? "");
+
+  const handleFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setStatus("uploading");
+    setError("");
+    onStatusChange("uploading");
+
+    const formData = new FormData();
+    formData.append("image", file);
+
+    const token = localStorage.getItem("ziply_token");
+
+    try {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001";
+      const res = await fetch(`${apiUrl}/api/upload/image`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+        body: formData,
+      });
+
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error ?? "Upload failed");
+      }
+
+      const { url } = await res.json();
+      setPreview(url);
+      onImageUrl(url);
+      setStatus("done");
+      onStatusChange("done");
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Upload failed";
+      setError(msg);
+      setStatus("error");
+      onStatusChange("error");
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      <p className="text-sm text-gray-500">
+        Upload an image to display in your &ldquo;Who We Are&rdquo; section.
+        Accepted formats: JPEG, PNG, WebP (max 5 MB). This field is optional.
+      </p>
+
+      <div>
+        <Label htmlFor="aboutImage" optional>
+          About section image
+        </Label>
+        <input
+          id="aboutImage"
+          type="file"
+          accept="image/jpeg,image/png,image/webp"
+          onChange={handleFile}
+          disabled={status === "uploading"}
+          className="block w-full text-sm text-gray-700 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 disabled:opacity-50 disabled:cursor-not-allowed"
+        />
+      </div>
+
+      {status === "uploading" && (
+        <p className="text-sm text-indigo-600">Uploading…</p>
+      )}
+
+      {status === "error" && (
+        <p className="text-sm text-red-600">{error}</p>
+      )}
+
+      {preview && status !== "error" && (
+        <div>
+          <p className="text-xs text-gray-400 mb-2">Preview</p>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={preview}
+            alt="About section preview"
+            className="rounded-lg object-cover w-full max-h-64"
           />
         </div>
       )}
@@ -559,6 +657,7 @@ export default function WizardPage() {
   const [data, setData] = useState<TemplateInputData>(INITIAL_DATA);
   const [errors, setErrors] = useState<Errors>({});
   const [done, setDone] = useState(false);
+  const [uploadStatus, setUploadStatus] = useState<"idle" | "uploading" | "done" | "error">("idle");
 
   useEffect(() => {
     const token = localStorage.getItem(AUTH_TOKEN_KEY);
@@ -649,7 +748,7 @@ export default function WizardPage() {
       }
     }
 
-    if (step === 3) {
+    if (step === 4) {
       if (data.programs.length === 0) {
         errs.programs = "At least one program is required.";
       }
@@ -661,7 +760,7 @@ export default function WizardPage() {
       });
     }
 
-    if (step === 4) {
+    if (step === 5) {
       if (
         data.donationUrl &&
         !/^https?:\/\/.+/.test(data.donationUrl)
@@ -675,7 +774,7 @@ export default function WizardPage() {
       });
     }
 
-    if (step === 5) {
+    if (step === 6) {
       if (!data.email.trim()) {
         errs.email = "Contact email is required.";
       } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) {
@@ -717,6 +816,7 @@ export default function WizardPage() {
         volunteerUrl: data.volunteerUrl || undefined,
         logoUrl: data.logoUrl || undefined,
         logoAlt: data.logoAlt || undefined,
+        images: data.images && Object.values(data.images).some(Boolean) ? data.images : undefined,
       };
 
       localStorage.setItem(
@@ -844,6 +944,13 @@ export default function WizardPage() {
             <Step2 data={data} errors={errors} onChange={setSimpleField} />
           )}
           {step === 3 && (
+            <StepMedia
+              imageUrl={data.images?.about}
+              onImageUrl={(url) => setField("images", { ...data.images, about: url })}
+              onStatusChange={setUploadStatus}
+            />
+          )}
+          {step === 4 && (
             <Step3
               programs={data.programs}
               errors={errors}
@@ -852,7 +959,7 @@ export default function WizardPage() {
               onRemove={removeProgram}
             />
           )}
-          {step === 4 && (
+          {step === 5 && (
             <Step4
               data={data}
               impactStats={data.impactStats ?? []}
@@ -863,7 +970,7 @@ export default function WizardPage() {
               onStatRemove={removeStat}
             />
           )}
-          {step === 5 && (
+          {step === 6 && (
             <Step5 data={data} errors={errors} onChange={setSimpleField} />
           )}
 
@@ -881,9 +988,10 @@ export default function WizardPage() {
             <button
               type="button"
               onClick={handleNext}
-              className="bg-indigo-600 text-white px-6 py-2.5 rounded-md font-semibold text-sm hover:bg-indigo-700 transition-colors"
+              disabled={uploadStatus === "uploading"}
+              className="bg-indigo-600 text-white px-6 py-2.5 rounded-md font-semibold text-sm hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {step === TOTAL_STEPS ? "Complete wizard →" : "Next →"}
+              {uploadStatus === "uploading" ? "Uploading…" : step === TOTAL_STEPS ? "Complete wizard →" : "Next →"}
             </button>
           </div>
         </div>
