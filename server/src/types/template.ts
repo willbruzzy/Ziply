@@ -89,4 +89,20 @@ export const TEMPLATES: Template[] = [
     dirName: "nonprofit-basic",
     version: "1.0.0",
   },
+  {
+    id: "nonprofit-modern",
+    name: "Nonprofit Modern",
+    description:
+      "A bold, editorial landing page with large typography, strong color blocks, and an asymmetric layout. Ideal for nonprofits seeking a striking online presence.",
+    dirName: "nonprofit-modern",
+    version: "1.0.0",
+  },
+  {
+    id: "nonprofit-warm",
+    name: "Nonprofit Warm",
+    description:
+      "A soft, community-focused landing page with rounded elements, gentle gradients, and an inviting aesthetic. Perfect for nonprofits that want to feel approachable.",
+    dirName: "nonprofit-warm",
+    version: "1.0.0",
+  },
 ];

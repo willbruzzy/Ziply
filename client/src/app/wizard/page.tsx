@@ -11,9 +11,17 @@ import {
   WIZARD_STORAGE_KEY,
 } from "@/types/template";
 
-const TOTAL_STEPS = 5;
+interface TemplateMeta {
+  id: string;
+  name: string;
+  description: string;
+  version: string;
+}
+
+const TOTAL_STEPS = 6;
 
 const STEP_LABELS = [
+  "Template",
   "Organization",
   "Branding",
   "Programs",
@@ -551,6 +559,61 @@ function Step5({
   );
 }
 
+function TemplateSelect({
+  templates,
+  selectedId,
+  onSelect,
+  loading,
+}: {
+  templates: TemplateMeta[];
+  selectedId: string;
+  onSelect: (id: string) => void;
+  loading: boolean;
+}) {
+  if (loading) {
+    return (
+      <div className="text-center py-12">
+        <p className="text-sm text-gray-500">Loading templates…</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-4">
+      <p className="text-sm text-gray-500">
+        Choose a design for your nonprofit website. All templates support the
+        same content — pick the style that best fits your organization.
+      </p>
+      <div className="grid gap-4">
+        {templates.map((t) => (
+          <button
+            key={t.id}
+            type="button"
+            onClick={() => onSelect(t.id)}
+            className={`text-left border-2 rounded-lg p-5 transition-all ${
+              selectedId === t.id
+                ? "border-indigo-600 bg-indigo-50 ring-1 ring-indigo-600"
+                : "border-gray-200 bg-white hover:border-gray-300"
+            }`}
+          >
+            <div className="flex items-center justify-between mb-1">
+              <h3 className="text-sm font-semibold text-gray-900">{t.name}</h3>
+              {selectedId === t.id && (
+                <span className="text-xs font-medium text-indigo-600 bg-indigo-100 px-2 py-0.5 rounded-full">
+                  Selected
+                </span>
+              )}
+            </div>
+            <p className="text-sm text-gray-500 leading-relaxed">
+              {t.description}
+            </p>
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 // ── Main Wizard ────────────────────────────────────────────────────────────────
 
 export default function WizardPage() {
@@ -559,12 +622,23 @@ export default function WizardPage() {
   const [data, setData] = useState<TemplateInputData>(INITIAL_DATA);
   const [errors, setErrors] = useState<Errors>({});
   const [done, setDone] = useState(false);
+  const [templateId, setTemplateId] = useState("nonprofit-basic");
+  const [templates, setTemplates] = useState<TemplateMeta[]>([]);
+  const [templatesLoading, setTemplatesLoading] = useState(true);
 
   useEffect(() => {
     const token = localStorage.getItem(AUTH_TOKEN_KEY);
     if (!token) {
       router.push("/login");
+      return;
     }
+
+    const apiBase = process.env.NEXT_PUBLIC_API_URL ?? "";
+    fetch(`${apiBase}/api/templates`)
+      .then((res) => res.json())
+      .then((json) => setTemplates(json.templates ?? []))
+      .catch(() => {})
+      .finally(() => setTemplatesLoading(false));
   }, [router]);
 
   // ── Field helpers ──────────────────────────────────────────────────────────
@@ -632,6 +706,10 @@ export default function WizardPage() {
     const errs: Errors = {};
 
     if (step === 1) {
+      if (!templateId) errs.templateId = "Please select a template.";
+    }
+
+    if (step === 2) {
       if (!data.orgName.trim()) errs.orgName = "Organization name is required.";
       if (!data.tagline.trim()) errs.tagline = "Tagline is required.";
       if (!data.missionStatement.trim())
@@ -639,7 +717,7 @@ export default function WizardPage() {
       if (!data.aboutText.trim()) errs.aboutText = "About text is required.";
     }
 
-    if (step === 2) {
+    if (step === 3) {
       if (!data.primaryColor)
         errs.primaryColor = "Primary color is required.";
       if (!data.secondaryColor)
@@ -649,7 +727,7 @@ export default function WizardPage() {
       }
     }
 
-    if (step === 3) {
+    if (step === 4) {
       if (data.programs.length === 0) {
         errs.programs = "At least one program is required.";
       }
@@ -661,7 +739,7 @@ export default function WizardPage() {
       });
     }
 
-    if (step === 4) {
+    if (step === 5) {
       if (
         data.donationUrl &&
         !/^https?:\/\/.+/.test(data.donationUrl)
@@ -675,7 +753,7 @@ export default function WizardPage() {
       });
     }
 
-    if (step === 5) {
+    if (step === 6) {
       if (!data.email.trim()) {
         errs.email = "Contact email is required.";
       } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) {
@@ -721,7 +799,7 @@ export default function WizardPage() {
 
       localStorage.setItem(
         WIZARD_STORAGE_KEY,
-        JSON.stringify({ templateId: "nonprofit-basic", inputData: cleaned })
+        JSON.stringify({ templateId, inputData: cleaned })
       );
 
       setDone(true);
@@ -838,12 +916,20 @@ export default function WizardPage() {
           </h2>
 
           {step === 1 && (
-            <Step1 data={data} errors={errors} onChange={setSimpleField} />
+            <TemplateSelect
+              templates={templates}
+              selectedId={templateId}
+              onSelect={setTemplateId}
+              loading={templatesLoading}
+            />
           )}
           {step === 2 && (
-            <Step2 data={data} errors={errors} onChange={setSimpleField} />
+            <Step1 data={data} errors={errors} onChange={setSimpleField} />
           )}
           {step === 3 && (
+            <Step2 data={data} errors={errors} onChange={setSimpleField} />
+          )}
+          {step === 4 && (
             <Step3
               programs={data.programs}
               errors={errors}
@@ -852,7 +938,7 @@ export default function WizardPage() {
               onRemove={removeProgram}
             />
           )}
-          {step === 4 && (
+          {step === 5 && (
             <Step4
               data={data}
               impactStats={data.impactStats ?? []}
@@ -863,7 +949,7 @@ export default function WizardPage() {
               onStatRemove={removeStat}
             />
           )}
-          {step === 5 && (
+          {step === 6 && (
             <Step5 data={data} errors={errors} onChange={setSimpleField} />
           )}
 
