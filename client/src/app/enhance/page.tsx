@@ -3,6 +3,8 @@
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import FlowNav from "@/components/FlowNav";
+import Spinner from "@/components/Spinner";
 import {
   type TemplateInputData,
   type WizardPayload,
@@ -94,17 +96,6 @@ function applyFieldStates(
 }
 
 // ── Components ─────────────────────────────────────────────────────────────────
-
-function EnhanceNav() {
-  return (
-    <nav className="border-b border-gray-100 bg-white px-6 py-4 flex items-center justify-between">
-      <Link href="/" className="text-xl font-bold text-indigo-600">
-        Ziply
-      </Link>
-      <span className="text-sm text-gray-500">AI Enhancement</span>
-    </nav>
-  );
-}
 
 function FieldCard({
   field,
@@ -262,9 +253,9 @@ export default function EnhancePage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex flex-col">
-        <EnhanceNav />
+        <FlowNav />
         <div className="flex-1 flex flex-col items-center justify-center gap-4">
-          <div className="w-8 h-8 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin" />
+          <Spinner />
           <p className="text-sm text-gray-500">
             AI is polishing your content&hellip;
           </p>
@@ -279,7 +270,7 @@ export default function EnhancePage() {
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
-      <EnhanceNav />
+      <FlowNav />
 
       <div className="flex-1 flex flex-col items-center px-4 py-10">
         <div className="w-full max-w-4xl">
