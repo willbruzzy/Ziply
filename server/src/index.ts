@@ -1,12 +1,11 @@
+import "./env"; // must be first — loads .env before any other module reads process.env
 import express from "express";
 import cors from "cors";
 import helmet from "helmet";
-import dotenv from "dotenv";
 import authRoutes from "./routes/auth";
 import generateRoutes from "./routes/generate";
 import stripeRoutes from "./routes/stripe";
-
-dotenv.config();
+import uploadRoutes from "./routes/upload";
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -28,6 +27,7 @@ app.get("/api/health", (_req, res) => {
 
 app.use("/api/auth", authRoutes);
 app.use("/api", generateRoutes);
+app.use("/api", uploadRoutes);
 app.use("/api/stripe", stripeRoutes);
 
 app.listen(PORT, () => {

@@ -76,7 +76,11 @@
           <h2 class="about__heading" id="about-heading">Who We Are</h2>
           <p class="about__text">{{aboutText}}</p>
         </div>
-        <div class="about__visual" aria-hidden="true">&#9829;</div>
+        {{#if aboutImageUrl}}
+          <img src="{{aboutImageUrl}}" alt="About {{orgName}}" class="about__image" />
+        {{else}}
+          <div class="about__visual" aria-hidden="true">&#9829;</div>
+        {{/if}}
       </div>
     </div>
   </section>

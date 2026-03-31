@@ -50,6 +50,7 @@ Ziply reduces cost and complexity barriers for nonprofits needing a professional
   - Organization name
   - Mission / about text
   - Branding: colors, logo (optional), images
+  - Media: image uploads (dedicated step — see 6.3.2)
   - Programs/services descriptions
   - Contact info (email/phone/address)
   - Donation link or CTA (may be a URL or a placeholder CTA)
@@ -57,7 +58,16 @@ Ziply reduces cost and complexity barriers for nonprofits needing a professional
   - Optional: events list or simple event section content
 - Wizard validates required fields and provides helpful error messages.
 
-### 6.3.1 AI Content Enhancement (OpenAI GPT)
+### 6.3.1 Image Upload (Media Step)
+- The wizard includes a dedicated media step for image uploads.
+- V1 supports one image: the "who we are" / about section image.
+- Images are uploaded eagerly — the upload fires on file select and returns a blob URL stored in wizard state immediately, before final submission.
+- Upload path: client sends the file as multipart form data to the Express server, which streams it to Azure Blob Storage and returns the public blob URL.
+- Images are stored in Azure Blob Storage with public read access; no SAS tokens are required for the generated HTML to reference them.
+- The `TemplateInputData` schema uses an image map (`images?: { about?: string }`) rather than named individual fields, so additional image slots can be added for future templates without schema-breaking changes.
+- Trade-off (accepted): the generated HTML references external Azure blob URLs and is no longer fully self-contained. This is a deliberate V1 decision; base64 inlining may be considered in a future phase.
+
+### 6.3.2 AI Content Enhancement (OpenAI GPT)
 - After the user completes all required wizard fields, the collected input data and the selected template identifier are sent to the OpenAI GPT API for content polishing.
 - The AI pass improves grammar, tone, clarity, and professionalism of user-provided text (mission statement, program descriptions, about text, etc.) while preserving the original meaning and facts.
 - The system sends a structured prompt that includes the user's raw input and context about the chosen template so the LLM can tailor language to a nonprofit audience.
@@ -160,6 +170,12 @@ Ziply reduces cost and complexity barriers for nonprofits needing a professional
 
 - GET  /api/templates
 - GET  /api/templates/:id
+
+- POST /api/upload/image
+  - input: multipart form data with a single image file
+  - output: `{ url: string }` — public Azure Blob Storage URL for the uploaded image
+  - requires authentication
+  - accepted types: JPEG, PNG, WebP; max 5 MB
 
 - POST /api/generate/enhance
   - input: templateId, inputData (raw user input)

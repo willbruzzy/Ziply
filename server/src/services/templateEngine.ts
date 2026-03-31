@@ -55,6 +55,8 @@ export function renderTemplate(
     logoAlt: inputData.logoAlt ?? inputData.orgName,
     donationCta: inputData.donationCta ?? "Donate Now",
     year: new Date().getFullYear(),
+    // Flatten image slots so templates can use simple {{#if aboutImageUrl}} checks
+    aboutImageUrl: inputData.images?.about ?? "",
   };
 
   // Compile the HTML template and inject the resolved CSS inline
