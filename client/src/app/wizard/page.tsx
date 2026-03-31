@@ -829,7 +829,7 @@ export default function WizardPage() {
       }
     }
 
-    if (step === 4) {
+    if (step === 5) {
       if (data.programs.length === 0) {
         errs.programs = "At least one program is required.";
       }
@@ -841,7 +841,7 @@ export default function WizardPage() {
       });
     }
 
-    if (step === 5) {
+    if (step === 6) {
       if (
         data.donationUrl &&
         !/^https?:\/\/.+/.test(data.donationUrl)
@@ -855,7 +855,7 @@ export default function WizardPage() {
       });
     }
 
-    if (step === 6) {
+    if (step === 7) {
       if (!data.email.trim()) {
         errs.email = "Contact email is required.";
       } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) {
