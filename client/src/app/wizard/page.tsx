@@ -259,13 +259,19 @@ function Step2({
 }
 
 function StepMedia({
+  slotId,
+  slotLabel,
+  slotDescription,
   imageUrl,
   onImageUrl,
   onStatusChange,
 }: {
+  slotId: string;
+  slotLabel: string;
+  slotDescription: string;
   imageUrl?: string;
   onImageUrl: (url: string) => void;
-  onStatusChange: (status: "idle" | "uploading" | "done" | "error") => void;
+  onStatusChange: (uploading: boolean) => void;
 }) {
   const [status, setStatus] = useState<"idle" | "uploading" | "done" | "error">("idle");
   const [error, setError] = useState<string>("");
@@ -277,7 +283,7 @@ function StepMedia({
 
     setStatus("uploading");
     setError("");
-    onStatusChange("uploading");
+    onStatusChange(true);
 
     const formData = new FormData();
     formData.append("image", file);
@@ -301,28 +307,24 @@ function StepMedia({
       setPreview(url);
       onImageUrl(url);
       setStatus("done");
-      onStatusChange("done");
+      onStatusChange(false);
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Upload failed";
       setError(msg);
       setStatus("error");
-      onStatusChange("error");
+      onStatusChange(false);
     }
   };
 
   return (
-    <div className="space-y-6">
-      <p className="text-sm text-gray-500">
-        Upload an image to display in your &ldquo;Who We Are&rdquo; section.
-        Accepted formats: JPEG, PNG, WebP (max 5 MB). This field is optional.
-      </p>
-
+    <div className="space-y-4">
       <div>
-        <Label htmlFor="aboutImage" optional>
-          About section image
+        <Label htmlFor={slotId} optional>
+          {slotLabel}
         </Label>
+        <p className="text-xs text-gray-500 mb-2">{slotDescription}</p>
         <input
-          id="aboutImage"
+          id={slotId}
           type="file"
           accept="image/jpeg,image/png,image/webp"
           onChange={handleFile}
@@ -341,12 +343,12 @@ function StepMedia({
 
       {preview && status !== "error" && (
         <div>
-          <p className="text-xs text-gray-400 mb-2">Preview</p>
+          <p className="text-xs text-gray-400 mb-1">Preview</p>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={preview}
-            alt="About section preview"
-            className="rounded-lg object-cover w-full max-h-64"
+            alt={slotLabel}
+            className="rounded-lg object-cover w-full max-h-48"
           />
         </div>
       )}
@@ -723,7 +725,7 @@ export default function WizardPage() {
   const [data, setData] = useState<TemplateInputData>(INITIAL_DATA);
   const [errors, setErrors] = useState<Errors>({});
   const [done, setDone] = useState(false);
-  const [uploadStatus, setUploadStatus] = useState<"idle" | "uploading" | "done" | "error">("idle");
+  const [uploadingCount, setUploadingCount] = useState(0);
   const [templateId, setTemplateId] = useState("nonprofit-basic");
   const [templates, setTemplates] = useState<TemplateMeta[]>([]);
   const [templatesLoading, setTemplatesLoading] = useState(true);
@@ -1033,11 +1035,35 @@ export default function WizardPage() {
             <Step2 data={data} errors={errors} onChange={setSimpleField} />
           )}
           {step === 4 && (
-            <StepMedia
-              imageUrl={data.images?.about}
-              onImageUrl={(url) => setField("images", { ...data.images, about: url })}
-              onStatusChange={setUploadStatus}
-            />
+            <div className="space-y-8">
+              <p className="text-sm text-gray-500">
+                Upload images for your website. Accepted formats: JPEG, PNG, WebP (max 5 MB). All fields are optional.
+              </p>
+              <StepMedia
+                slotId="heroImage"
+                slotLabel="Hero section image"
+                slotDescription="Background photo displayed in the banner at the top of your page."
+                imageUrl={data.images?.hero}
+                onImageUrl={(url) => setField("images", { ...data.images, hero: url })}
+                onStatusChange={(uploading) => setUploadingCount((c) => uploading ? c + 1 : Math.max(0, c - 1))}
+              />
+              <StepMedia
+                slotId="aboutImage"
+                slotLabel="About section image"
+                slotDescription="Photo displayed in the &ldquo;Who We Are&rdquo; section."
+                imageUrl={data.images?.about}
+                onImageUrl={(url) => setField("images", { ...data.images, about: url })}
+                onStatusChange={(uploading) => setUploadingCount((c) => uploading ? c + 1 : Math.max(0, c - 1))}
+              />
+              <StepMedia
+                slotId="programsImage"
+                slotLabel="Programs section image"
+                slotDescription="Banner photo displayed above your programs and services."
+                imageUrl={data.images?.programs}
+                onImageUrl={(url) => setField("images", { ...data.images, programs: url })}
+                onStatusChange={(uploading) => setUploadingCount((c) => uploading ? c + 1 : Math.max(0, c - 1))}
+              />
+            </div>
           )}
           {step === 5 && (
             <Step3
@@ -1077,10 +1103,10 @@ export default function WizardPage() {
             <button
               type="button"
               onClick={handleNext}
-              disabled={uploadStatus === "uploading"}
+              disabled={uploadingCount > 0}
               className="bg-indigo-600 text-white px-6 py-2.5 rounded-md font-semibold text-sm hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {uploadStatus === "uploading" ? "Uploading…" : step === TOTAL_STEPS ? "Complete wizard →" : "Next →"}
+              {uploadingCount > 0 ? "Uploading…" : step === TOTAL_STEPS ? "Complete wizard →" : "Next →"}
             </button>
           </div>
         </div>

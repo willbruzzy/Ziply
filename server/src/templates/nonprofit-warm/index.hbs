@@ -57,10 +57,14 @@
           <a href="#about" class="btn btn-secondary">Our Story</a>
         </div>
       </div>
-      <div class="hero__visual" aria-hidden="true">
-        <div class="hero__circle"></div>
-        <div class="hero__circle hero__circle--sm"></div>
-      </div>
+      {{#if heroImageUrl}}
+        <img src="{{heroImageUrl}}" alt="{{orgName}}" class="hero__image" />
+      {{else}}
+        <div class="hero__visual" aria-hidden="true">
+          <div class="hero__circle"></div>
+          <div class="hero__circle hero__circle--sm"></div>
+        </div>
+      {{/if}}
     </div>
   </header>
 
@@ -100,6 +104,9 @@
         <h2 class="programs__heading" id="programs-heading">Our Programs</h2>
         <p class="programs__subtitle">How we make a difference every day.</p>
       </div>
+      {{#if programsImageUrl}}
+        <img src="{{programsImageUrl}}" alt="Our programs" class="programs__image" />
+      {{/if}}
       <div class="programs__grid">
         {{#each programs}}
           <article class="program-card">

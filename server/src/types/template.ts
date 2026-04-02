@@ -32,7 +32,7 @@ export interface TemplateInputData {
    * Slots are template-defined (e.g. "about" for the about-section image).
    * Values are public Azure Blob Storage URLs returned by POST /api/upload/image.
    */
-  images?: { about?: string; [key: string]: string | undefined };
+  images?: { about?: string; hero?: string; programs?: string; [key: string]: string | undefined };
 
   // --- Programs / Services ---
   /**
