@@ -661,15 +661,101 @@ function Step5({
   );
 }
 
+function TemplatePreviewModal({
+  templateId,
+  templateName,
+  onClose,
+}: {
+  templateId: string | null;
+  templateName: string;
+  onClose: () => void;
+}) {
+  const [html, setHtml] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!templateId) return;
+    setHtml(null);
+    setError(null);
+    setLoading(true);
+    const token = localStorage.getItem("ziply_token");
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001";
+    fetch(`${apiUrl}/api/generate/demo/${templateId}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error("Preview failed");
+        return res.json() as Promise<{ html: string }>;
+      })
+      .then((data) => setHtml(data.html))
+      .catch((err) => setError(err instanceof Error ? err.message : "Preview failed"))
+      .finally(() => setLoading(false));
+  }, [templateId]);
+
+  if (!templateId) return null;
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex flex-col bg-black/60"
+      onClick={onClose}
+    >
+      <div
+        className="flex flex-col flex-1 mx-auto my-6 w-full max-w-5xl bg-white rounded-xl overflow-hidden shadow-2xl"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Header */}
+        <div className="flex items-center justify-between px-5 py-3 border-b border-gray-200 shrink-0">
+          <span className="text-sm font-semibold text-gray-800">
+            Preview — {templateName}
+          </span>
+          <button
+            type="button"
+            onClick={onClose}
+            className="text-sm text-gray-500 hover:text-gray-800 transition-colors"
+          >
+            ✕ Close
+          </button>
+        </div>
+
+        {/* Body */}
+        <div className="flex-1 overflow-hidden">
+          {loading && (
+            <div className="flex flex-col items-center justify-center h-full gap-3">
+              <Spinner />
+              <p className="text-sm text-gray-500">Loading preview…</p>
+            </div>
+          )}
+          {error && (
+            <div className="flex items-center justify-center h-full">
+              <p className="text-sm text-red-600">{error}</p>
+            </div>
+          )}
+          {html && (
+            <iframe
+              srcDoc={html}
+              sandbox=""
+              className="w-full h-full"
+              title={`Preview of ${templateName}`}
+            />
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function TemplateSelect({
   templates,
   selectedId,
   onSelect,
+  onPreview,
   loading,
 }: {
   templates: TemplateMeta[];
   selectedId: string;
   onSelect: (id: string) => void;
+  onPreview: (id: string, name: string) => void;
   loading: boolean;
 }) {
   if (loading) {
@@ -689,28 +775,41 @@ function TemplateSelect({
       </p>
       <div className="grid gap-4">
         {templates.map((t) => (
-          <button
+          <div
             key={t.id}
-            type="button"
-            onClick={() => onSelect(t.id)}
-            className={`text-left border-2 rounded-lg p-5 transition-all ${
+            className={`border-2 rounded-lg transition-all ${
               selectedId === t.id
                 ? "border-indigo-600 bg-indigo-50 ring-1 ring-indigo-600"
                 : "border-gray-200 bg-white hover:border-gray-300"
             }`}
           >
-            <div className="flex items-center justify-between mb-1">
-              <h3 className="text-sm font-semibold text-gray-900">{t.name}</h3>
-              {selectedId === t.id && (
-                <span className="text-xs font-medium text-indigo-600 bg-indigo-100 px-2 py-0.5 rounded-full">
-                  Selected
-                </span>
-              )}
+            <button
+              type="button"
+              onClick={() => onSelect(t.id)}
+              className="w-full text-left p-5"
+            >
+              <div className="flex items-center justify-between mb-1">
+                <h3 className="text-sm font-semibold text-gray-900">{t.name}</h3>
+                {selectedId === t.id && (
+                  <span className="text-xs font-medium text-indigo-600 bg-indigo-100 px-2 py-0.5 rounded-full">
+                    Selected
+                  </span>
+                )}
+              </div>
+              <p className="text-sm text-gray-500 leading-relaxed">
+                {t.description}
+              </p>
+            </button>
+            <div className="px-5 pb-3 -mt-1">
+              <button
+                type="button"
+                onClick={() => onPreview(t.id, t.name)}
+                className="text-xs text-indigo-600 hover:text-indigo-800 hover:underline transition-colors"
+              >
+                Preview template →
+              </button>
             </div>
-            <p className="text-sm text-gray-500 leading-relaxed">
-              {t.description}
-            </p>
-          </button>
+          </div>
         ))}
       </div>
     </div>
@@ -727,6 +826,7 @@ export default function WizardPage() {
   const [done, setDone] = useState(false);
   const [uploadingCount, setUploadingCount] = useState(0);
   const [templateId, setTemplateId] = useState("nonprofit-basic");
+  const [previewTemplate, setPreviewTemplate] = useState<{ id: string; name: string } | null>(null);
   const [templates, setTemplates] = useState<TemplateMeta[]>([]);
   const [templatesLoading, setTemplatesLoading] = useState(true);
 
@@ -981,6 +1081,7 @@ export default function WizardPage() {
   const progressPct = Math.round(((step - 1) / TOTAL_STEPS) * 100);
 
   return (
+    <>
     <div className="min-h-screen bg-gray-50 flex flex-col">
       <FlowNav />
 
@@ -1025,6 +1126,7 @@ export default function WizardPage() {
               templates={templates}
               selectedId={templateId}
               onSelect={setTemplateId}
+              onPreview={(id, name) => setPreviewTemplate({ id, name })}
               loading={templatesLoading}
             />
           )}
@@ -1112,6 +1214,13 @@ export default function WizardPage() {
         </div>
       </div>
     </div>
+
+    <TemplatePreviewModal
+      templateId={previewTemplate?.id ?? null}
+      templateName={previewTemplate?.name ?? ""}
+      onClose={() => setPreviewTemplate(null)}
+    />
+    </>
   );
 }
 
