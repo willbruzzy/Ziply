@@ -210,6 +210,13 @@ section { padding: 5.5rem 0; }
   font-size: 1.05rem;
   line-height: 1.8;
 }
+.about__image {
+  width: 85%;
+  aspect-ratio: 1;
+  object-fit: cover;
+  border-radius: var(--radius-xl);
+  justify-self: center;
+}
 .about__visual {
   position: relative;
   display: flex;

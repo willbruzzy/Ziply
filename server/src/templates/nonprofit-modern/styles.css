@@ -203,6 +203,12 @@ section { padding: 6rem 0; }
   font-size: 1.05rem;
   line-height: 1.8;
 }
+.about__image {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border-radius: var(--radius-lg);
+}
 
 /* --- Programs --- */
 .programs { background: var(--surface); }

@@ -82,10 +82,14 @@
         <h2 class="about__heading" id="about-heading">Our Story</h2>
         <p class="about__text">{{aboutText}}</p>
       </div>
-      <div class="about__visual" aria-hidden="true">
-        <div class="about__shape"></div>
-        <div class="about__shape about__shape--offset"></div>
-      </div>
+      {{#if aboutImageUrl}}
+        <img src="{{aboutImageUrl}}" alt="About {{orgName}}" class="about__image" />
+      {{else}}
+        <div class="about__visual" aria-hidden="true">
+          <div class="about__shape"></div>
+          <div class="about__shape about__shape--offset"></div>
+        </div>
+      {{/if}}
     </div>
   </section>
 
