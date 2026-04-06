@@ -31,6 +31,75 @@ router.get("/templates/:id", (req, res: Response) => {
   res.json({ template });
 });
 
+/** Hardcoded demo data used to render template previews before the wizard is filled out. */
+const DEMO_DATA: TemplateInputData = {
+  orgName: "Hope in Action",
+  tagline: "Building a stronger community, one step at a time.",
+  missionStatement:
+    "Our mission is to empower underserved communities through education, resources, and compassionate support. Together, we believe lasting change is possible.",
+  aboutText:
+    "Founded in 2012, Hope in Action has served thousands of families across the region. We are driven by the belief that every person deserves dignity, opportunity, and community.",
+  primaryColor: "#4f46e5",
+  secondaryColor: "#1e40af",
+  email: "info@hopeinaction.org",
+  phone: "(555) 123-4567",
+  address: "200 Community Ave, Springfield, IL",
+  programs: [
+    {
+      name: "Youth Mentorship",
+      description:
+        "Pairing at-risk youth with caring adult mentors to build confidence and life skills.",
+    },
+    {
+      name: "Food Assistance",
+      description:
+        "Monthly food distributions serving over 500 families in need across our region.",
+    },
+    {
+      name: "Skills Training",
+      description:
+        "Free workshops on job readiness, financial literacy, and digital skills for adults.",
+    },
+  ],
+  impactStats: [
+    { number: "12,000+", label: "lives impacted" },
+    { number: "500+", label: "volunteers" },
+    { number: "10 yrs", label: "of service" },
+  ],
+  donationUrl: "https://donate.example.org",
+  donationCta: "Donate Today",
+  volunteerText:
+    "Join our growing community of volunteers and make a real difference in someone's life. We welcome all backgrounds and skill levels.",
+};
+
+/**
+ * GET /api/generate/demo/:templateId
+ * Renders a template with hardcoded demo data for preview purposes.
+ * Requires authentication.
+ *
+ * Response:
+ *   { html: string }
+ */
+router.get(
+  "/generate/demo/:templateId",
+  authenticate,
+  (req: AuthRequest, res: Response) => {
+    const templateId = req.params.templateId as string;
+    const template = TEMPLATES.find((t) => t.id === templateId);
+    if (!template) {
+      res.status(404).json({ error: "Template not found" });
+      return;
+    }
+    try {
+      const { html } = renderTemplate(templateId, DEMO_DATA);
+      res.json({ html });
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Generation failed";
+      res.status(422).json({ error: message });
+    }
+  }
+);
+
 /**
  * POST /api/generate/preview
  * Renders a template with the provided inputData and returns the HTML.

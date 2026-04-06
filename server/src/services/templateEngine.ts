@@ -57,6 +57,8 @@ export function renderTemplate(
     year: new Date().getFullYear(),
     // Flatten image slots so templates can use simple {{#if aboutImageUrl}} checks
     aboutImageUrl: inputData.images?.about ?? "",
+    heroImageUrl: inputData.images?.hero ?? "",
+    programsImageUrl: inputData.images?.programs ?? "",
   };
 
   // Compile the HTML template and inject the resolved CSS inline

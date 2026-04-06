@@ -42,7 +42,7 @@
   </nav>
 
   <!-- ======= Hero ======= -->
-  <header class="hero" role="banner">
+  <header class="hero" role="banner" {{#if heroImageUrl}}style="background-image: url('{{heroImageUrl}}')"{{/if}}>
     <div class="hero__overlay"></div>
     <div class="container hero__content">
       <span class="hero__badge">Nonprofit Organization</span>
@@ -96,6 +96,9 @@
         <h3 class="programs__title">Our Programs</h3>
         <p class="programs__subtitle">Making a difference through action.</p>
       </div>
+      {{#if programsImageUrl}}
+        <img src="{{programsImageUrl}}" alt="Our programs" class="programs__image" />
+      {{/if}}
       <div class="programs__grid">
         {{#each programs}}
           <article class="program-card">

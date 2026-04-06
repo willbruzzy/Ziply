@@ -28,7 +28,7 @@ export interface TemplateInputData {
   // Optional
   logoUrl?: string;
   logoAlt?: string;
-  images?: { about?: string; [key: string]: string | undefined };
+  images?: { about?: string; hero?: string; programs?: string; [key: string]: string | undefined };
   impactStats?: ImpactStat[];
   donationUrl?: string;
   donationCta?: string;

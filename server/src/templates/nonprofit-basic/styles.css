@@ -6,6 +6,7 @@
 
 /* --- Reset & base --- */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+ul { list-style: none; }
 
 :root {
   --primary:   {{primaryColor}};
@@ -106,11 +107,23 @@ section:nth-child(even) { background: var(--surface); }
 
 /* --- Hero --- */
 .hero {
+  position: relative;
   background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+  background-size: cover;
+  background-position: center;
   color: var(--white);
   padding: 7rem 0 6rem;
   text-align: center;
 }
+.hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+  opacity: 0.75;
+  pointer-events: none;
+}
+.hero .container { position: relative; z-index: 1; }
 .hero__eyebrow {
   font-size: 0.9rem;
   font-weight: 600;
@@ -202,7 +215,14 @@ section:nth-child(even) { background: var(--surface); }
   font-weight: 700;
   margin-bottom: 0.75rem;
 }
-.programs__subtext { color: var(--muted); margin-bottom: 3rem; font-size: 1.05rem; }
+.programs__subtext { color: var(--muted); margin-bottom: 2rem; font-size: 1.05rem; }
+.programs__image {
+  width: 100%;
+  max-height: 360px;
+  object-fit: cover;
+  border-radius: var(--radius);
+  margin-bottom: 2.5rem;
+}
 .programs__grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));

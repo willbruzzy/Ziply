@@ -42,7 +42,7 @@
   </nav>
 
   <!-- ======= Hero ======= -->
-  <header class="hero" role="banner">
+  <header class="hero" role="banner" {{#if heroImageUrl}}style="background-image: url('{{heroImageUrl}}')"{{/if}}>
     <div class="container">
       <p class="hero__eyebrow">Nonprofit Organization</p>
       <h1 class="hero__title">{{orgName}}</h1>
@@ -90,6 +90,9 @@
     <div class="container">
       <h2 class="programs__heading" id="programs-heading">Our Programs</h2>
       <p class="programs__subtext">Explore the ways we serve our community.</p>
+      {{#if programsImageUrl}}
+        <img src="{{programsImageUrl}}" alt="Our programs" class="programs__image" />
+      {{/if}}
       <ul class="programs__grid" role="list">
         {{#each programs}}
           <li class="program-card">
