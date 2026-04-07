@@ -92,7 +92,7 @@ A user can generate, pay for, and download a website ZIP using a single template
 - User can upload an image in the wizard media step; it appears rendered in the about section of the preview.
 - Upload fires on file select (eager); blob URL is stored in wizard state before final submission.
 - Invalid file type or oversized file produces a clear error message; wizard cannot proceed until resolved or field left empty.
-- Generated HTML references the public blob URL; no SAS token required.
+- Generated ZIP embeds images as base64 data URIs; upload blobs are deleted from Azure after ZIP generation succeeds.
 - `POST /api/upload/image` requires a valid JWT; unauthenticated requests return 401.
 
 ---

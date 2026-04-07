@@ -65,7 +65,7 @@ Ziply reduces cost and complexity barriers for nonprofits needing a professional
 - Upload path: client sends the file as multipart form data to the Express server, which streams it to Azure Blob Storage and returns the public blob URL.
 - Images are stored in Azure Blob Storage with public read access; no SAS tokens are required for the generated HTML to reference them.
 - The `TemplateInputData` schema uses an image map (`images?: { about?: string }`) rather than named individual fields, so additional image slots can be added for future templates without schema-breaking changes.
-- Trade-off (accepted): the generated HTML references external Azure blob URLs and is no longer fully self-contained. This is a deliberate V1 decision; base64 inlining may be considered in a future phase.
+- Images are embedded as base64 data URIs directly in the generated HTML, making the ZIP fully self-contained with no dependency on external URLs. Upload blobs are deleted from Azure Blob Storage after the ZIP is successfully generated.
 
 ### 6.3.2 AI Content Enhancement (OpenAI GPT)
 - After the user completes all required wizard fields, the collected input data and the selected template identifier are sent to the OpenAI GPT API for content polishing.
@@ -91,7 +91,7 @@ Ziply reduces cost and complexity barriers for nonprofits needing a professional
 - A Node.js-based generation engine produces a complete static website output:
   - HTML files (or equivalent static output)
   - CSS (template-provided)
-  - Assets directory containing uploaded images/logos
+  - Uploaded images embedded as base64 data URIs (no separate assets directory)
 - Template variables are injected into HTML using Handlebars (also used to inject brand colors into CSS).
 - Generation must be deterministic and reproducible given the same inputs.
 

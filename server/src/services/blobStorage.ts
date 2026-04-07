@@ -50,3 +50,15 @@ export async function uploadImage(
 
   return blockBlobClient.url;
 }
+
+/**
+ * Deletes an image blob from the uploads container.
+ *
+ * @param blobName  Blob path within the container (e.g. "images/{uuid}.jpg").
+ *                  Silently succeeds if the blob does not exist.
+ */
+export async function deleteBlob(blobName: string): Promise<void> {
+  const client = getBlobServiceClient();
+  const containerClient = client.getContainerClient(getContainerName());
+  await containerClient.getBlockBlobClient(blobName).deleteIfExists();
+}
