@@ -221,39 +221,6 @@ function Step2({
         </div>
       </div>
 
-      <div>
-        <Label htmlFor="logoUrl" optional>
-          Logo URL
-        </Label>
-        <input
-          id="logoUrl"
-          type="url"
-          value={data.logoUrl ?? ""}
-          onChange={(e) => onChange("logoUrl", e.target.value)}
-          className={inputClass}
-          placeholder="https://example.com/logo.png"
-        />
-        <p className="mt-1 text-xs text-gray-400">
-          Must be a publicly accessible image URL. Leave blank to skip the logo.
-        </p>
-        <FieldError msg={errors.logoUrl} />
-      </div>
-
-      {data.logoUrl && (
-        <div>
-          <Label htmlFor="logoAlt" optional>
-            Logo alt text
-          </Label>
-          <input
-            id="logoAlt"
-            type="text"
-            value={data.logoAlt ?? ""}
-            onChange={(e) => onChange("logoAlt", e.target.value)}
-            className={inputClass}
-            placeholder="Green Future Foundation logo"
-          />
-        </div>
-      )}
     </div>
   );
 }
@@ -926,9 +893,6 @@ export default function WizardPage() {
         errs.primaryColor = "Primary color is required.";
       if (!data.secondaryColor)
         errs.secondaryColor = "Secondary color is required.";
-      if (data.logoUrl && !/^https?:\/\/.+/.test(data.logoUrl)) {
-        errs.logoUrl = "Logo URL must start with http:// or https://";
-      }
     }
 
     if (step === 5) {
@@ -1134,7 +1098,34 @@ export default function WizardPage() {
             <Step1 data={data} errors={errors} onChange={setSimpleField} />
           )}
           {step === 3 && (
-            <Step2 data={data} errors={errors} onChange={setSimpleField} />
+            <div className="space-y-8">
+              <Step2 data={data} errors={errors} onChange={setSimpleField} />
+              <div className="space-y-4">
+                <StepMedia
+                  slotId="logoImage"
+                  slotLabel="Logo"
+                  slotDescription="Your organization's logo. Displayed in the navigation bar and used as the browser tab icon."
+                  imageUrl={data.logoUrl}
+                  onImageUrl={(url) => setSimpleField("logoUrl", url)}
+                  onStatusChange={(uploading) => setUploadingCount((c) => uploading ? c + 1 : Math.max(0, c - 1))}
+                />
+                {data.logoUrl && (
+                  <div>
+                    <Label htmlFor="logoAlt" optional>
+                      Logo alt text
+                    </Label>
+                    <input
+                      id="logoAlt"
+                      type="text"
+                      value={data.logoAlt ?? ""}
+                      onChange={(e) => setSimpleField("logoAlt", e.target.value)}
+                      className={inputClass}
+                      placeholder="Green Future Foundation logo"
+                    />
+                  </div>
+                )}
+              </div>
+            </div>
           )}
           {step === 4 && (
             <div className="space-y-8">
