@@ -5,10 +5,53 @@ import { authenticate, AuthRequest } from "../middleware/auth";
 import { renderTemplate, listTemplates } from "../services/templateEngine";
 import { enhanceContent } from "../services/openai";
 import { uploadZip, streamZip } from "../services/storage";
+import { deleteBlob } from "../services/blobStorage";
 import { createGenerationRecord, getGenerationRecord } from "../services/cosmos";
 import { TemplateInputData, TEMPLATES } from "../types/template";
 
 const router = Router();
+
+/**
+ * Fetches every Azure Blob Storage image URL found in the rendered HTML,
+ * replaces each with a base64 data URI, and returns the modified HTML along
+ * with the list of blob names that should be deleted after the ZIP is stored.
+ */
+async function embedImagesAsBase64(
+  html: string
+): Promise<{ html: string; imageBlobNames: string[] }> {
+  const containerName =
+    process.env.AZURE_STORAGE_CONTAINER_NAME ?? "ziply-uploads";
+  const urlPattern = new RegExp(
+    `https://[^"' )]+\\.blob\\.core\\.windows\\.net/${containerName}/[^"' )]+`,
+    "g"
+  );
+
+  const urls = [...new Set(html.match(urlPattern) ?? [])];
+  if (urls.length === 0) return { html, imageBlobNames: [] };
+
+  const replacements = await Promise.all(
+    urls.map(async (url) => {
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch image: ${url} (${response.status})`);
+      }
+      const buffer = Buffer.from(await response.arrayBuffer());
+      const mimeType = response.headers.get("content-type") ?? "image/jpeg";
+      const dataUri = `data:${mimeType};base64,${buffer.toString("base64")}`;
+      const blobName = new URL(url).pathname.slice(`/${containerName}/`.length);
+      return { url, dataUri, blobName };
+    })
+  );
+
+  let embedded = html;
+  const imageBlobNames: string[] = [];
+  for (const { url, dataUri, blobName } of replacements) {
+    embedded = embedded.replaceAll(url, dataUri);
+    imageBlobNames.push(blobName);
+  }
+
+  return { html: embedded, imageBlobNames };
+}
 
 /**
  * GET /api/templates
@@ -249,6 +292,9 @@ router.post(
       // Render template
       const { html, css } = renderTemplate(templateId, inputData);
 
+      // Replace Azure Blob URLs with base64 data URIs so the ZIP is self-contained
+      const { html: embeddedHtml, imageBlobNames } = await embedImagesAsBase64(html);
+
       // Build ZIP in memory
       const zipBuffer = await new Promise<Buffer>((resolve, reject) => {
         const archive = archiver("zip", { zlib: { level: 9 } });
@@ -258,7 +304,7 @@ router.post(
         archive.on("end", () => resolve(Buffer.concat(chunks)));
         archive.on("error", reject);
 
-        archive.append(html, { name: "index.html" });
+        archive.append(embeddedHtml, { name: "index.html" });
         archive.append(css, { name: "styles.css" });
         archive.finalize();
       });
@@ -274,6 +320,17 @@ router.post(
         blobName,
         paid: false,
         createdAt: new Date().toISOString(),
+      });
+
+      // Clean up image blobs now that they are embedded in the ZIP
+      const cleanupResults = await Promise.allSettled(
+        imageBlobNames.map((name) => deleteBlob(name))
+      );
+      cleanupResults.forEach((result, i) => {
+        if (result.status === "rejected") {
+          // eslint-disable-next-line no-console
+          console.warn(`Failed to delete image blob ${imageBlobNames[i]}:`, result.reason);
+        }
       });
 
       res.json({ generationId });
