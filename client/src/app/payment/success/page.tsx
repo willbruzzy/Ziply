@@ -23,6 +23,112 @@ export default function PaymentSuccessPage() {
   );
 }
 
+function DeploymentGuide() {
+  const [showGitHub, setShowGitHub] = useState(false);
+
+  return (
+    <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-8 max-w-2xl w-full">
+      <h2 className="text-lg font-bold text-gray-900 mb-1">How to Deploy Your Site</h2>
+      <p className="text-sm text-gray-500 mb-6">
+        Your ZIP contains two files: <code className="bg-gray-100 px-1 rounded">index.html</code> and{" "}
+        <code className="bg-gray-100 px-1 rounded">styles.css</code>. Images are already embedded — no
+        separate folder needed. Unzip it first, then pick an option below.
+      </p>
+
+      {/* Netlify */}
+      <div className="mb-6">
+        <h3 className="text-sm font-semibold text-gray-800 mb-3">
+          Option 1: Netlify{" "}
+          <span className="text-xs font-normal text-indigo-600 ml-1">Easiest — drag and drop</span>
+        </h3>
+        <ol className="space-y-2 text-sm text-gray-600 list-decimal list-inside">
+          <li>
+            Go to{" "}
+            <a
+              href="https://app.netlify.com/drop"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-indigo-600 hover:underline"
+            >
+              app.netlify.com/drop
+            </a>
+            .
+          </li>
+          <li>Drag your unzipped folder (or both files) onto the page.</li>
+          <li>Netlify gives you a live URL instantly — click it to see your site.</li>
+          <li>
+            Click <strong>Claim your site</strong> and create a free account to make it permanent
+            (otherwise it expires in 24 hours).
+          </li>
+          <li>
+            Optional: rename your URL under <strong>Site configuration → Change site name</strong>, or
+            connect your own domain under <strong>Domain management</strong>.
+          </li>
+        </ol>
+      </div>
+
+      {/* GitHub Pages toggle */}
+      <button
+        type="button"
+        onClick={() => setShowGitHub((v) => !v)}
+        className="text-sm text-indigo-600 hover:text-indigo-800 transition-colors mb-4 flex items-center gap-1"
+      >
+        <svg
+          className={`w-4 h-4 transition-transform ${showGitHub ? "rotate-90" : ""}`}
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          strokeWidth={2}
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+        </svg>
+        {showGitHub ? "Hide" : "Show"} GitHub Pages option
+      </button>
+
+      {showGitHub && (
+        <div className="border-t border-gray-100 pt-4">
+          <h3 className="text-sm font-semibold text-gray-800 mb-3">Option 2: GitHub Pages</h3>
+          <p className="text-xs text-gray-500 mb-3">
+            You&rsquo;ll need a free{" "}
+            <a
+              href="https://github.com/signup"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-indigo-600 hover:underline"
+            >
+              GitHub account
+            </a>
+            .
+          </p>
+          <ol className="space-y-2 text-sm text-gray-600 list-decimal list-inside">
+            <li>
+              Create a new <strong>public</strong> repository (click <strong>+</strong> → New repository).
+              Check <strong>Add a README file</strong> so it isn&rsquo;t empty.
+            </li>
+            <li>
+              Upload your files via <strong>Add file → Upload files</strong>, then commit.
+            </li>
+            <li>
+              Go to <strong>Settings → Pages</strong>, set Source to <strong>Deploy from a branch</strong>,
+              pick <code className="bg-gray-100 px-1 rounded">main</code> /{" "}
+              <code className="bg-gray-100 px-1 rounded">root</code>, and save.
+            </li>
+            <li>Wait 1–2 minutes — GitHub will show a green banner with your live URL.</li>
+            <li>
+              Optional: add your own domain under <strong>Settings → Pages → Custom domain</strong> and
+              follow the DNS instructions.
+            </li>
+          </ol>
+        </div>
+      )}
+
+      <p className="text-xs text-gray-400 mt-6">
+        Need help? Reach out through your Ziply dashboard and we&rsquo;ll get you sorted.
+      </p>
+    </div>
+  );
+}
+
 function PaymentSuccessContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -131,6 +237,7 @@ function PaymentSuccessContent() {
         )}
 
         {status === "confirmed" && (
+          <>
           <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-10 max-w-md w-full text-center">
             <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <svg
@@ -165,6 +272,14 @@ function PaymentSuccessContent() {
               {downloading ? "Downloading\u2026" : "Download ZIP"}
             </button>
           </div>
+          <DeploymentGuide />
+          <Link
+            href="/deploy"
+            className="text-sm text-indigo-600 hover:text-indigo-800 transition-colors"
+          >
+            View full deployment guide &rarr;
+          </Link>
+        </>
         )}
 
         {status === "pending" && (

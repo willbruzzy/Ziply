@@ -61,12 +61,17 @@ export default function FlowNav() {
         })}
       </ol>
 
-      <button
-        onClick={handleLogout}
-        className="text-sm text-gray-400 hover:text-gray-600 transition-colors"
-      >
-        Log out
-      </button>
+      <div className="flex items-center gap-4">
+        <Link href="/deploy" className="text-sm text-gray-400 hover:text-gray-600 transition-colors">
+          Deploy Guide
+        </Link>
+        <button
+          onClick={handleLogout}
+          className="text-sm text-gray-400 hover:text-gray-600 transition-colors"
+        >
+          Log out
+        </button>
+      </div>
     </nav>
   );
 }
