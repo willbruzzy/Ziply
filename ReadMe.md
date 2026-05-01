@@ -27,6 +27,11 @@ This project is being developed as part of a **Computer Science Capstone** using
 
 ---
 
+## Final Presentation
+
+[View Ziply Final Presentation](./Ziply-Final-Presentation.pdf)
+
+
 ## Project Structure
 
 ```
