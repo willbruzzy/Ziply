@@ -27,8 +27,12 @@ This project is being developed as part of a **Computer Science Capstone** using
 
 ---
 
-## Final Presentation
+##  Demo & Presentation
 
+[![Watch Demo](https://img.youtube.com/vi/YOUR_VIDEO_ID/0.jpg)](https://youtube.com/watch?v=YOUR_VIDEO_ID)
+
+
+ **Slides:**  
 [View Ziply Final Presentation](./Ziply-Final-Presentation.pdf)
 
 
