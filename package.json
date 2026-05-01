@@ -1,0 +1,21 @@
+{
+  "name": "ziply",
+  "version": "0.1.0",
+  "private": true,
+  "description": "AI-Assisted Website Generation for Nonprofit Organizations",
+  "scripts": {
+    "dev": "concurrently \"npm run dev:client\" \"npm run dev:server\"",
+    "dev:client": "npm --prefix client run dev",
+    "dev:server": "npm --prefix server run dev",
+    "build": "npm run build:client && npm run build:server",
+    "build:client": "npm --prefix client run build",
+    "build:server": "npm --prefix server run build",
+    "lint": "npm run lint:client && npm run lint:server",
+    "lint:client": "npm --prefix client run lint",
+    "lint:server": "npm --prefix server run lint",
+    "install:all": "npm install && npm --prefix client install && npm --prefix server install"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}

@@ -4,6 +4,8 @@ This document translates `spec.md` into phased, executable tasks designed for AI
 Work proceeds strictly in order: MVP → Polish → Extras.  
 No phase may begin until all “Definition of Done” criteria for the previous phase are met.
 
+**Current status (March 2026):** Phase 0 and Phase 1 (MVP) are implemented; work is moving into Phase 2.
+
 ---
 
 ## Phase 0 — Project Setup & Guardrails (Pre-MVP)
@@ -46,12 +48,13 @@ A user can generate, pay for, and download a website ZIP using a single template
 - Users can register, log in, log out.
 - Passwords are hashed.
 - Unauthorized users cannot access protected endpoints.
+ - MVP stores users in-memory; persisting accounts to Cosmos DB can be a follow-up task.
 
 ---
 
 ### 1.2 Template Engine v1 (Single Template)
 **Tasks**
-- Select templating library (Handlebars or EJS).
+- Use Handlebars as the templating library.
 - Create one nonprofit template with placeholders.
 - Implement variable injection from structured input data.
 - Generate static HTML/CSS output locally.
@@ -73,6 +76,24 @@ A user can generate, pay for, and download a website ZIP using a single template
 - User can complete wizard without errors.
 - Submitted data matches template requirements exactly.
 - Invalid input produces clear feedback.
+
+---
+
+### 1.3.1 Image Upload
+**Tasks**
+- Server: install `multer` for multipart parsing; add Azure Blob Storage upload service (`server/src/services/blobStorage.ts`) using `@azure/storage-blob`.
+- Server: create `POST /api/upload/image` route (authenticated); accept single file, validate type (JPEG/PNG/WebP) and size (max 5 MB), upload to Azure Blob Storage, return `{ url }`.
+- Schema: add `images?: { about?: string; [key: string]: string | undefined }` to `TemplateInputData` in both `server/src/types/template.ts` and `client/src/types/template.ts`; remove legacy `logoUrl`/`logoAlt` fields if superseded.
+- Client: add a dedicated media wizard step between branding and programs; include a file input that triggers eager upload on selection, shows upload progress/error, and stores the returned blob URL in `wizardData.inputData.images.about`.
+- Template: update `nonprofit-basic/index.hbs` to conditionally render the about image when `images.about` is present.
+- Env: document `AZURE_STORAGE_CONNECTION_STRING` and `AZURE_STORAGE_CONTAINER_NAME` in server README and `.env.example`.
+
+**Definition of Done**
+- User can upload an image in the wizard media step; it appears rendered in the about section of the preview.
+- Upload fires on file select (eager); blob URL is stored in wizard state before final submission.
+- Invalid file type or oversized file produces a clear error message; wizard cannot proceed until resolved or field left empty.
+- Generated ZIP embeds images as base64 data URIs; upload blobs are deleted from Azure after ZIP generation succeeds.
+- `POST /api/upload/image` requires a valid JWT; unauthenticated requests return 401.
 
 ---
 
@@ -109,6 +130,7 @@ A user can generate, pay for, and download a website ZIP using a single template
 - Implement ZIP packaging using Archiver.
 - Store ZIP artifact securely (Azure Blob Storage or equivalent).
 - Associate ZIP with generation request.
+ - Expose `POST /api/generate/zip` to render the template, build the ZIP, upload to storage, and create the generation record before checkout.
 
 **Definition of Done**
 - ZIP contains full static site structure.
@@ -123,6 +145,7 @@ A user can generate, pay for, and download a website ZIP using a single template
 - Handle success and cancel redirects.
 - Implement webhook endpoint with signature verification.
 - Gate ZIP download on confirmed payment.
+ - Expose `POST /api/stripe/create-session` and `GET /api/stripe/session-status/:sessionId` endpoints used by the frontend payment flow.
 
 **Definition of Done**
 - Payment must be confirmed via webhook, not redirect.
@@ -267,13 +290,3 @@ Demonstrate depth, learning, and polish without expanding core scope.
 - Live demo can be run without failure.
 - Video demonstrates full user journey.
 - Deliverables align with Sprint 4 submission criteria.
-
----
-
-## Execution Rules for Claude Code
-- Do not change architecture without updating `spec.md`.
-- Do not add dependencies without justification.
-- Do not move to the next task unless Definition of Done is satisfied.
-- Prefer small, verifiable commits.
-- Document decisions inline or in markdown.
-
